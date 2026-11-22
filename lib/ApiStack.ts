@@ -60,6 +60,7 @@ export class ApiStack extends cdk.Stack {
     const mainResource = api_endpoint.root.addResource('api')
     const exampleResource = mainResource.addResource('example')
     const addCatResource = mainResource.addResource('addCat')
+    const dc_showdashboard = mainResource.addResource('dcShowDash')
 
     // Add a POST method to the '/api/example' resource
     const example_lambda_fnc = new lambdaNodejs.NodejsFunction(this, 'ExampleFunction', {
@@ -72,7 +73,7 @@ export class ApiStack extends cdk.Stack {
       timeout: Duration.seconds(3),
     })
 
-    const addCat_fcn = new lambdaNodejs.NodejsFunction(this, 'addCategory'), {
+    const addCat_fcn = new lambdaNodejs.NodejsFunction(this, 'addCategory', {
       runtime: lambda.Runtime.NODEJS_22_X,
       handler: 'handler',
       entry: path.join(__dirname, 'addCategory', 'addCatLambda.mjs'),
@@ -80,18 +81,36 @@ export class ApiStack extends cdk.Stack {
       environment: db_env,
       securityGroups: [securityGroup],
       timeout: Duration.seconds(3),
-    }
+    })
+
+    const showdc_dashboard_fcn = new lambdaNodejs.NodejsFunction(this, 'dc_showdashboard', {
+      runtime: lambda.Runtime.NODEJS_22_X,
+      handler: 'handler',
+      entry: path.join(__dirname, 'dc_showdashboard', 'dc_showdashboard.mts'),
+      vpc: vpc,
+      environment: db_env,
+      securityGroups: [securityGroup],
+      timeout: Duration.seconds(3)
+    })
     
+    //Authentication user protocals
     const auth = new apigw.CognitoUserPoolsAuthorizer(this, 'DonazionUserAuthorizer', {
       cognitoUserPools: [props.userPool]
     })
     
+
+    //Adding method to lambda
     exampleResource.addMethod('POST', new apigw.LambdaIntegration(example_lambda_fnc), {
       authorizer: auth,
       authorizationType: apigw.AuthorizationType.COGNITO
     })
 
     addCatResource.addMethod('POST', new apigw.LambdaIntegration(addCat_fcn), {
+      authorizer: auth,
+      authorizationType: apigw.AuthorizationType.COGNITO
+    })
+
+    dc_showdashboard.addMethod('POST', new apigw.LambdaIntegration(showdc_dashboard_fcn), {
       authorizer: auth,
       authorizationType: apigw.AuthorizationType.COGNITO
     })
