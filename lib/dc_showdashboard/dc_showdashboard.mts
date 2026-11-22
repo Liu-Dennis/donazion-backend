@@ -1,13 +1,11 @@
-import "dotenv/config"
-import mysql from "mysql2"
-import { resourceLimits } from "worker_threads"
+import mysql, { Pool } from "mysql2"
 
-var pool = mysql.createPool({
-      host: 	process.env.RDS_HOST,
-      user: 	process.env.RDS_USER,
-      password: process.env.RDS_PASSWORD,
-      database: process.env.RDS_DATABASE
-  })
+const pool: Pool = mysql.createPool({
+  host: process.env.RDS_HOST!,
+  user: process.env.RDS_USER!,
+  password: process.env.RDS_PASSWORD!,
+  database: process.env.RDS_DATABASE!,
+})
 
 interface DatabaseDonationCenter {
   dc_name: string
