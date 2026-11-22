@@ -38,7 +38,8 @@ export const handler = async (event: any): Promise<DatabaseDonationCenter | any 
   let code
   let result
 
-  
+  //comment #1
+  //comment #2
 
   try {
     const userId: string = JSON.parse(event.body).userId
