@@ -138,6 +138,11 @@ export const handler = async (event: any): Promise<DatabaseDonationCenter | any 
   }
   const response = {
     statusCode: code,
+    headers: {
+        "Access-Control-Allow-Origin": "http://localhost:3000",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Methods": "OPTIONS,POST"
+    },
     body: JSON.stringify(result),
   }
 
