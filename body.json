@@ -1,1 +1,7 @@
+{
+  "items": [
+    { "category": "soup", "name": "Gespacho", "lowLimit": 0, "highLimit": 10 },
+    { "category": "soup", "name": "chicken noodle", "lowLimit": 1, "highLimit": 8 }
+  ]
+}
 {"orgo_id":0,"cat_name":"soups"}
