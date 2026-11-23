@@ -8,6 +8,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2'
 import { Duration } from 'aws-cdk-lib'
 import * as cognito from "aws-cdk-lib/aws-cognito"
 import 'dotenv/config';
+import { handler } from './dc_showdashboard/dc_showdashboard.mjs';
 
 export class ApiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -65,6 +66,7 @@ export class ApiStack extends cdk.Stack {
     const addCatResource = mainResource.addResource('addCat')
     const onboardResource = mainResource.addResource('onboard')
     const dc_showdashboard = mainResource.addResource('dcShowDash')
+    const donate = mainResource.addResource('donate')
 
     // Add a POST method to the '/api/example' resource
     const example_lambda_fnc = new lambdaNodejs.NodejsFunction(this, 'ExampleFunction', {
@@ -117,6 +119,16 @@ export class ApiStack extends cdk.Stack {
       securityGroups: [securityGroup],
       timeout: Duration.seconds(3)
     })
+
+    const donate_fnc = new lambdaNodejs.NodejsFunction(this, 'donate',{
+      runtime: lambda.Runtime.NODEJS_22_X,
+      handler: 'handler',
+      entry: path.join(__dirname, 'donate', 'donate.mjs'),
+      vpc: vpc,
+      environment: db_env,
+      securityGroups: [securityGroup],
+      timeout: Duration.seconds(3)
+    })
     
     //Authentication user protocals
     const auth = new apigw.CognitoUserPoolsAuthorizer(this, 'DonazionUserAuthorizer', {
@@ -142,6 +154,11 @@ export class ApiStack extends cdk.Stack {
     })
     
     dc_showdashboard.addMethod('POST', new apigw.LambdaIntegration(showdc_dashboard_fcn), {
+      authorizer: auth,
+      authorizationType: apigw.AuthorizationType.COGNITO
+    })
+
+    donate.addMethod('POST', new apigw.LambdaIntegration(donate_fnc), {
       authorizer: auth,
       authorizationType: apigw.AuthorizationType.COGNITO
     })
