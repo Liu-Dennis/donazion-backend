@@ -41,8 +41,8 @@ const isOnboarded = async (id: string): Promise<boolean> => {
 }
 
 const validateJSON = (obj: unknown): obj is UserDonationCenter => {
-  if (typeof obj !== "object" || obj === null) return false;
-  const data = obj as Record<string, unknown>;
+  if (typeof obj !== "object" || obj === null) return false
+  const data = obj as Record<string, unknown>
 
   return (
     typeof data.name === "string" &&
@@ -53,6 +53,12 @@ const validateJSON = (obj: unknown): obj is UserDonationCenter => {
     typeof data.lat === "number" &&
     typeof data.long === "number"
   )
+}
+
+const headers = {
+  "Access-Control-Allow-Origin": "http://localhost:3000",
+  "Access-Control-Allow-Headers": "Content-Type,Authorization",
+  "Access-Control-Allow-Methods": "OPTIONS,POST",
 }
 
 export const pool: Pool = mysql.createPool({
@@ -82,6 +88,7 @@ export const handler = async (
     console.log(JSON.stringify(error, null, 2))
     return {
       statusCode: 500,
+      headers,
       body: JSON.stringify({ message: "Invalid Body" }),
     }
   }
@@ -89,6 +96,7 @@ export const handler = async (
   if (!validateJSON(body)) {
     return {
       statusCode: 400,
+      headers,
       body: JSON.stringify({ message: "Body missing fields" }),
     }
   }
@@ -96,6 +104,7 @@ export const handler = async (
   if (orgStatus || onboardStatus) {
     return {
       statusCode: 400,
+      headers,
       body: JSON.stringify({ message: "User not eligible" }),
     }
   }
@@ -126,11 +135,13 @@ export const handler = async (
     console.log(JSON.stringify(error, null, 2))
     return {
       statusCode: 500,
+      headers,
       body: JSON.stringify({ message: "Database error" }),
     }
   }
   return {
     statusCode: 200,
+    headers,
     body: JSON.stringify({ message: "Donation Center added successfully" }),
   }
 }
