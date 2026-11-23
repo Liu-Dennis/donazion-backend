@@ -139,7 +139,7 @@ export const handler = async (event: any): Promise<DatabaseDonationCenter | any 
         "Access-Control-Allow-Headers": "Content-Type,Authorization",
         "Access-Control-Allow-Methods": "OPTIONS,POST"
     },
-    body: JSON.stringify(result),
+    body: JSON.stringify(result)
   }
 
   return response
