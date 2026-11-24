@@ -65,6 +65,7 @@ export class ApiStack extends cdk.Stack {
     const addCatResource = mainResource.addResource('addCat')
     const onboardResource = mainResource.addResource('onboard')
     const dc_showdashboard = mainResource.addResource('dcShowDash')
+    const dc_delete = mainResource.addResource('dcDelete')
 
     // Add a POST method to the '/api/example' resource
     const example_lambda_fnc = new lambdaNodejs.NodejsFunction(this, 'ExampleFunction', {
@@ -117,6 +118,16 @@ export class ApiStack extends cdk.Stack {
       securityGroups: [securityGroup],
       timeout: Duration.seconds(3)
     })
+
+    const dc_delete_fcn = new lambdaNodejs.NodejsFunction(this, 'dc_delete', {
+      runtime: lambda.Runtime.NODEJS_22_X,
+      handler: 'handler',
+      entry: path.join(__dirname, 'dc_delete', 'dc_delete.mts'),
+      vpc: vpc,
+      environment: db_env,
+      securityGroups: [securityGroup],
+      timeout: Duration.seconds(3)
+    })
     
     //Authentication user protocals
     const auth = new apigw.CognitoUserPoolsAuthorizer(this, 'DonazionUserAuthorizer', {
@@ -142,6 +153,11 @@ export class ApiStack extends cdk.Stack {
     })
     
     dc_showdashboard.addMethod('POST', new apigw.LambdaIntegration(showdc_dashboard_fcn), {
+      authorizer: auth,
+      authorizationType: apigw.AuthorizationType.COGNITO
+    })
+
+    dc_delete.addMethod('POST', new apigw.LambdaIntegration(dc_delete_fcn), {
       authorizer: auth,
       authorizationType: apigw.AuthorizationType.COGNITO
     })

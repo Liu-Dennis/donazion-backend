@@ -20,11 +20,12 @@ export const handler = async (event: any): Promise<String | any | undefined> => 
             pool.query(selectQuery, [userId], (error, results) => {
                 if (error) return error
                 if (Array.isArray(results) && results.length > 1){
-                    return "uh oh"
+                    return "Multiple Donation Centers Deleted"
                 }
                 if (Array.isArray(results) && results.length == 1){
                     return results
                 }
+                return resolve(undefined)
             })
         })
     } catch (error) {
