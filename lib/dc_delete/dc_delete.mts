@@ -11,16 +11,18 @@ export const handler = async (event: any): Promise<String | any | undefined> => 
     let code
     let result
 
+    console.log("Programming is a sin")
+
     try {
         //const userId: string = JSON.parse(event.body).userId
         const userId = "ac"//currently a test value, as I dont want to delete any of our databases with actual data
         
         return new Promise((resolve, reject) => {
-            const selectQuery = "DELETE FROM DonationCenter WHERE ? "
+            const selectQuery = "DELETE FROM DonationCenter WHERE ?"
             pool.query(selectQuery, [userId], (error, results) => {
                 if (error) return error
                 if (Array.isArray(results) && results.length > 1){
-                    return "Multiple Donation Centers Deleted"
+                    return "Error: Multiple Donation Centers Deleted"
                 }
                 if (Array.isArray(results) && results.length == 1){
                     return results
@@ -36,9 +38,9 @@ export const handler = async (event: any): Promise<String | any | undefined> => 
     const response = {
         statusCode: code,
         headers: {
-            "Access-Control-Allow-Origin": "http://localhost:3000",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "Content-Type,Authorization",
-            "Access-Control-Allow-Methods": "OPTIONS,POST"
+            "Access-Control-Allow-Methods": "OPTIONS,POST,DELETE"
         },
         result: JSON.stringify(result)
     }
