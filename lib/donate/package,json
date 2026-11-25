@@ -1,0 +1,9 @@
+{
+  "name": "donate",
+  "version": "1.0.0",
+  "description": "Lambda function to complete a donation",
+  "main": "donate.mjs",
+  "dependencies": {
+    "mysql2": "^3.15.1"
+  }
+}
