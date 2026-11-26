@@ -14,26 +14,40 @@ export const handler = async (event: any): Promise<String | any | undefined> => 
     console.log("Programming is a sin")
 
     try {
-        //const userId: string = JSON.parse(event.body).userId
-        const userId = "ac"//currently a test value, as I dont want to delete any of our databases with actual data
+        //currenlt let for testing, reset later
+        let userId: string = JSON.parse(event.body).userId
+        //console.log(userId)
+        //userId = "ac"//currently a test value, as I dont want to delete any of our databases with actual data
         
-        return new Promise((resolve, reject) => {
-            const selectQuery = "DELETE FROM DonationCenter WHERE ?"
-            pool.query(selectQuery, [userId], (error, results) => {
-                if (error) return error
-                if (Array.isArray(results) && results.length > 1){
-                    return "Error: Multiple Donation Centers Deleted"
-                }
-                if (Array.isArray(results) && results.length == 1){
-                    return results
-                }
-                return resolve(undefined)
+        const deleteDC =  () => {
+            return new Promise((resolve, reject) => {
+                const selectQuery = "DELETE FROM DonationCenter WHERE DonationCenter.dc_id = ?"
+                pool.query<mysql.ResultSetHeader>(selectQuery, [userId], (error, results) => {
+                    //console.log(error)
+                    //console.log(results)
+                    if (error) {
+                        code = 400
+                        return reject(error)
+                    }
+                    if (results.affectedRows > 1){
+                        code = 400
+                        return resolve("Error: Multiple Donation Centers Deleted")
+                    } else if (results.affectedRows == 1){
+                        code = 200
+                        return resolve(results)
+                    } else {
+                        code = 400
+                        return resolve(undefined)
+                    }
+                })
             })
-        })
+        }
+        const deleteDCRes = await deleteDC()
+        result = deleteDCRes
+        code = 200
     } catch (error) {
+        code = 400
         result = error instanceof Error ? error.message : "An Error has occurred"
-        
-    
     }
     const response = {
         statusCode: code,
@@ -42,7 +56,7 @@ export const handler = async (event: any): Promise<String | any | undefined> => 
             "Access-Control-Allow-Headers": "Content-Type,Authorization",
             "Access-Control-Allow-Methods": "OPTIONS,POST,DELETE"
         },
-        result: JSON.stringify(result)
+        body: JSON.stringify(result)
     }
     return response
 }
