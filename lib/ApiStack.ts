@@ -127,7 +127,7 @@ export class ApiStack extends cdk.Stack {
       vpc: vpc,
       environment: db_env,
       securityGroups: [securityGroup],
-      timeout: Duration.seconds(3)
+      timeout: Duration.seconds(15),
     })
     
     //Authentication user protocals
@@ -159,8 +159,6 @@ export class ApiStack extends cdk.Stack {
     })
 
     donate.addMethod('POST', new apigw.LambdaIntegration(donate_fnc), {
-      authorizer: auth,
-      authorizationType: apigw.AuthorizationType.COGNITO
     })
   }
 }
