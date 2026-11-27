@@ -66,6 +66,7 @@ export class ApiStack extends cdk.Stack {
     const addCatResource = mainResource.addResource('addCat')
     const onboardResource = mainResource.addResource('onboard')
     const dc_showdashboard = mainResource.addResource('dcShowDash')
+    const dc_delete = mainResource.addResource('dcDelete')
     const donate = mainResource.addResource('donate')
 
     // Add a POST method to the '/api/example' resource
@@ -120,6 +121,15 @@ export class ApiStack extends cdk.Stack {
       timeout: Duration.seconds(3)
     })
 
+    const dc_delete_fcn = new lambdaNodejs.NodejsFunction(this, 'dc_delete', {
+      runtime: lambda.Runtime.NODEJS_22_X,
+      handler: 'handler',
+      entry: path.join(__dirname, 'dc_delete', 'dc_delete.mts'),
+      vpc: vpc,
+      environment: db_env,
+      securityGroups: [securityGroup],
+      timeout: Duration.seconds(3)
+    })
     const donate_fnc = new lambdaNodejs.NodejsFunction(this, 'donate',{
       runtime: lambda.Runtime.NODEJS_22_X,
       handler: 'handler',
@@ -158,6 +168,11 @@ export class ApiStack extends cdk.Stack {
       authorizationType: apigw.AuthorizationType.COGNITO
     })
 
+    dc_delete.addMethod('POST', new apigw.LambdaIntegration(dc_delete_fcn), {
+      authorizer: auth,
+      authorizationType: apigw.AuthorizationType.COGNITO
+    })
+    
     donate.addMethod('POST', new apigw.LambdaIntegration(donate_fnc), {
     })
   }
